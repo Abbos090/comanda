@@ -1,107 +1,47 @@
-class korzinka:
-    def __init__(self, No, kirim, chiqim, foyda):
-        self.no = No
-        self.kirim = kirim
-        self.chiqim = chiqim
-        self.foyda = foyda
-
-class Waters:
+class Korzinka:
     def __init__(self):
-        self.waters = {}
-
-    def add_water(self, water, soni):
-        if water in self.waters:
-            self.waters[water] += soni
-        else:
-            self.waters[water] = soni
-        
-    def remove_water(self, water, soni):
-        if soni < self.waters[water]:
-            self.waters[water] -= soni
-        else:
-            print('Xatolik kelib chiqdi !')
-
-    def get_info_water(self, water):
-        if water in self.waters:
-            return f"Do'konda {self.waters[water]} ta {water} bor"
-        else:
-            return f"Do'konda {water} mahsuloti yo'q"
-        
-    def get_info(self):
-        return self.waters
-
-# p1 = Waters()
-
-# p1.add_water('cola', 10)
-# p1.remove_water('cola', 5)
-
-# p1.add_water('cola', 203)
-# print(p1.get_info_water('cola'))
-
-
-class Icecream:
-    def __init__(self):
-        self.icecream = {}
-
-    def add_icecream(self, name, number):
-        if name in self.icecream:
-            self.icecream[name] += number
-        else:
-            self.icecream[name] = number
+        self.products = {}  
+        self.chiqim = 0  
+        self.kirim = 0  
+        self.foyda = 0  
     
-    def remove_icecream(self, name, number):
-        if self.icecream[name] > number:
-            self.icecream[name] -= number
+    def add_product(self, name, quantity, price, sell_price):
+        """Mahsulot qo'shish yoki borini yangilash."""
+        if name in self.products:
+            self.products[name]['quantity'] += quantity
         else:
-            print('Xatolik yuzaga keldi')
-
-    def get_info_icecream(self, icecream):
-        if icecream in self.icecream:
-            return f"{self.icecream[icecream]}ta {icecream} bor"
-        else:
-            return f"Do'konda {icecream} yo'q"
+            self.products[name] = {'quantity': quantity, 'price': price, 'sell_price': sell_price}
         
-    def get_info(self):
-        return self.icecream
-
-# i1 = Icecream()
-
-# i1.add_icecream('musa', 10)
-# print(i1.get_info_icecream('musa'))
-# i1.remove_icecream('musa', 5)
-# print(i1.get_info_icecream('musa'))
-# i1.add_icecream('musa', 10)
-# print(i1.get_info_icecream('musa'))
-
-# print(i1.get_info())
-
-class Sweets:
-    def __init__(self):
-        self.sweets = {}
-
-    def add_sweets(self, name, kg):
-        if name in self.sweets:
-            self.sweets[name] += kg
-        else:
-            self.sweets[name] = kg
-        
-    def remove_sweets(self, name, kg):
-        if name in self.sweets and kg < self.sweets[name]:
-            self.sweets[name] -= kg
-        else:
-            return 'Xatolik yuz berdi'
-        
-    def get_info_sweet(self, name):
-        if name in self.sweets:
-            return f"{self.sweets[name]} kg {name} shirinligi bor"
-        else:
-            return f"Do'konda {name} qolmagan"
-    def get_info(self):
-        return self.sweets
+        self.chiqim += quantity * price  
     
-# s1 = Sweets()
+    def sell_product(self, name, quantity):
+        """Mahsulot sotish va foydani hisoblash."""
+        if name in self.products and self.products[name]['quantity'] >= quantity:
+            self.products[name]['quantity'] -= quantity
+            sotish_summasi = quantity * self.products[name]['sell_price']
+            tannarx_summasi = quantity * self.products[name]['price']
+            
+            self.kirim += tannarx_summasi  
+            self.foyda += (sotish_summasi - tannarx_summasi)
+        else:
+            print("Xatolik: yetarli mahsulot mavjud emas yoki umuman yo'q!")
+    
+    def get_info_product(self, name):
+        """Mahsulot haqida ma'lumot olish."""
+        if name in self.products:
+            return f"{name}: {self.products[name]['quantity']} dona, narxi: {self.products[name]['price']} so'm, sotish narxi: {self.products[name]['sell_price']} so'm"
+        else:
+            return "Mahsulot mavjud emas."
+    
+    def get_summary(self):
+        """Do'konning umumiy holati haqida ma'lumot."""
+        return f"Kirim: {self.chiqim} so'm, Chiqim: {self.kirim} so'm, Sof foyda: {self.foyda} so'm"
+    
+    def get_all_products(self):
+        """Barcha mahsulotlarni ro'yxat shaklida chiqarish."""
+        return self.products
 
-# s1.add_sweets('sfad', 20)
-# print(s1.get_info_sweet('sfad'))
-# s1.remove_sweets('sfad', 15)
-# print(s1.get_info_sweet('sfad'))
+k1 = Korzinka()
+k1.add_product('pepsi', 10, 8000, 10000)
+k1.add_product('pepsi', 5, 8000, 10000)
+print(k1.get_info_product('pepsi'))
