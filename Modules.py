@@ -1,68 +1,72 @@
 import json
 
+admin_username = 'admin'
+admin_password = '1234'
+
 class Korzinka:
-    def __init__(self, filename="products.json"):
+    def __init__(self, filename = "products.json"):
         self.filename = filename
         self.products = self.load_data()
         self.kirim = 0
         self.chiqim = 0
         self.foyda = 0
-    
+
     def load_data(self):
-        """Mahsulotlarni JSON fayldan yuklash."""
         try:
-            with open(self.filename, "r") as file:
+            with open(self.filename, 'r') as file:
                 return json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except(FileNotFoundError, json.JSONDecodeError):
             return {}
-    
+
     def save_data(self):
-        """Mahsulotlarni JSON faylga saqlash."""
-        with open(self.filename, "w") as file:
+        with open(self.filename, 'w') as file:
             json.dump(self.products, file, indent=4)
-    
+
     def add_product(self, name, quantity, price, sell_price):
-        """Mahsulot qo'shish yoki borini yangilash."""
         if name in self.products:
             self.products[name]['quantity'] += quantity
         else:
-            self.products[name] = {'quantity': quantity, 'price': price, 'sell_price': sell_price}
-        
-        self.kirim += quantity * price
-        self.save_data()
-    
-    def sell_product(self, name, quantity):
-        """Mahsulot sotish va foydani hisoblash."""
-        if name in self.products and self.products[name]['quantity'] >= quantity:
-            self.products[name]['quantity'] -= quantity
-            sotish_summasi = quantity * self.products[name]['sell_price']
-            tannarx_summasi = quantity * self.products[name]['price']
-            
-            self.chiqim += tannarx_summasi
-            self.foyda += (sotish_summasi - tannarx_summasi)
-            self.save_data()
-        else:
-            print("Xatolik: yetarli mahsulot mavjud emas yoki umuman yo'q!")
-    
-    def get_info_product(self, name):
-        """Mahsulot haqida ma'lumot olish."""
-        if name in self.products:
-            return f"{name}: {self.products[name]['quantity']} dona, narxi: {self.products[name]['price']} so'm, sotish narxi: {self.products[name]['sell_price']} so'm"
-        else:
-            return "Mahsulot mavjud emas."
-    
-    def get_summary(self):
-        """Do'konning umumiy holati haqida ma'lumot."""
-        return f"Kirim: {self.kirim} so'm, Chiqim: {self.chiqim} so'm, Sof foyda: {self.foyda} so'm"
-    
-    def get_all_products(self):
-        """Barcha mahsulotlarni ro'yxat shaklida chiqarish."""
-        return self.products
+            self.products[name] = {'quantity':quantity, 'price':price, 'sell_price':sell_price}
 
-if __name__ == "__main__":
-    store = Korzinka()
+        self.chiqim += quantity * price
+        self.save_data()
+
+    def sell_product(self, name, quantity):
+        if name in self.products and self.products[name]['quantity'] > quantity:
+            self.products[name]['quantity'] -= quantity
+
+            sotish_summasi = (self.products[name]['sell_price'] * quantity)
+            tannnarx_summasi = (self.products[name]['price'] * quantity)
+
+            self.chiqim += tannnarx_summasi
+            self.foyda += (sotish_summasi - tannnarx_summasi)
+        
+        else:
+            print("Xatolik: mahsulot kam yoki umuman yo'q")
+            
+    def get_info_product(self, name):
+        if name in self.products:
+            return f"{name} : {self.products[name]['quantity']}dona, narxi : {self.products[name]['price']}, sotish narxi : {self.products[name]['sell_price']}"
+        
+    def get_summary(self):
+        return f"Chiqim : {self.chiqim}, Kirim : {self.kirim}, Sof foyda : {self.foyda}"
+
+    def get_all_product(self):
+        return {name : data['sell_price'] for name, data in self.products.items()}
     
-    while True:
+store = Korzinka()
+
+def manager_login(): 
+    username = input("Username kiriting >> ".lower())
+    password = input("Password kiriting >> ")
+    return username == admin_username and password == admin_password
+
+def for_admin():
+    if not manager_login:
+        print("Noto'g'ri parol yoki username. Siz manager sifatida kira olmaysiz")
+        return
+
+while True:
         print("\n1. Mahsulot qo'shish")
         print("2. Mahsulot sotish")
         print("3. Mahsulot haqida ma'lumot olish")
@@ -90,3 +94,19 @@ if __name__ == "__main__":
             break
         else:
             print("Noto'g'ri tanlov, qayta urinib ko'ring!")
+
+def for_customer():
+    print("\nMahsulotlar va ularning narxlari:")
+    products = store.get_all_product()
+    for name, price in products.items():
+        print(f"{name} : {price} so'm")
+
+ans = input("1.Manager sifatida kirish\n2.Xaridor sifatida kirish\nTanlang (1/2)")
+
+if ans == '1':
+    for_admin()
+elif ans == '2':
+    for_customer()
+else:
+    print("Noto'g'ri tanlov")
+
